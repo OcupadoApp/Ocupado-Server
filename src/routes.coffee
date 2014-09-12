@@ -5,34 +5,22 @@
 # We are using method names to determine controller actions for clearness.
 
 module.exports = (app) ->
-  
-  # simple session authorization
-  checkAuth = (req, res, next) ->
-    unless req.session.authorized
-      res.statusCode = 401
-      res.render '401', 401
-    else
-      next()
-  
 
-  app.all '/private', checkAuth, (req, res, next) ->
-    routeMvc('private', 'index', req, res, next)  
-  
   #   - _/_ -> controllers/index/index method
   app.all '/', (req, res, next) ->
-    routeMvc('index', 'index', req, res, next)
+    routeMvc('index', 'index', req, res, next, app)
 
   #   - _/**:controller**_  -> controllers/***:controller***/index method
   app.all '/:controller', (req, res, next) ->
-    routeMvc(req.params.controller, 'index', req, res, next)
+    routeMvc(req.params.controller, 'index', req, res, next, app)
 
   #   - _/**:controller**/**:method**_ -> controllers/***:controller***/***:method*** method
   app.all '/:controller/:method', (req, res, next) ->
-    routeMvc(req.params.controller, req.params.method, req, res, next)
+    routeMvc(req.params.controller, req.params.method, req, res, next, app)
 
   #   - _/**:controller**/**:method**/**:id**_ -> controllers/***:controller***/***:method*** method with ***:id*** param passed
   app.all '/:controller/:method/:id', (req, res, next) ->
-    routeMvc(req.params.controller, req.params.method, req, res, next)
+    routeMvc(req.params.controller, req.params.method, req, res, next, app)
 
   # If all else failed, show 404 page
   app.all '/*', (req, res) ->
@@ -41,7 +29,7 @@ module.exports = (app) ->
     res.render '404', 404
 
 # render the page based on controller name, method and id
-routeMvc = (controllerName, methodName, req, res, next) ->
+routeMvc = (controllerName, methodName, req, res, next, app) ->
   controllerName = 'index' if not controllerName?
   controller = null
   try
@@ -53,7 +41,7 @@ routeMvc = (controllerName, methodName, req, res, next) ->
   data = null
   if typeof controller[methodName] is 'function'
     actionMethod = controller[methodName].bind controller
-    actionMethod req, res, next
+    actionMethod req, res, next, app
   else
     console.warn 'method not found: ' + methodName
     next()

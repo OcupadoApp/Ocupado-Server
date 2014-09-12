@@ -11,7 +11,7 @@ bodyParser = require("body-parser")
 app = express()
 
 # Define Port & Environment
-app.port = process.env.PORT or process.env.VMC_APP_PORT or 3000
+app.port = process.env.PORT or process.env.VMC_APP_PORT or 8080
 env = process.env.NODE_ENV or "development"
 
 # Config module exports has `setEnvironment` function that sets app settings depending on environment.
@@ -46,6 +46,9 @@ app.set 'view engine', 'jade'
 
 # [Body parser middleware](http://www.senchalabs.org/connect/middleware-bodyParser.html) parses JSON or XML bodies into `req.body` object
 app.use bodyParser()
+
+# Socket.io
+sockets = require('./sockets')(app)
 
 
 #### Finalization
