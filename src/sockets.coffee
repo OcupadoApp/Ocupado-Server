@@ -7,4 +7,7 @@ module.exports = (app) ->
     socket.emit 'handshake:request'
     socket.on 'handshake:response', (data) ->
       if data.id?
-        app.sockets[data.id] = socket
+        if app.sockets[data.id]?
+          app.sockets[data.id].push(socket)
+        else
+          app.sockets[data.id] = [socket]
